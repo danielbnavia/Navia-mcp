@@ -105,7 +105,7 @@ All three reference the same env vars so secrets stay out of git:
 |---|---|
 | `NAVIA_CF_ACCESS_CLIENT_ID` | Cloudflare Access service token Client ID |
 | `NAVIA_CF_ACCESS_CLIENT_SECRET` | Cloudflare Access service token Client Secret |
-| `NAVIA_MCP_BEARER` | AAD bearer with `API.Access` role for the existing `requireRole` gate. Copilot Studio supplies this via the connector's OAuth connection; Claude clients need a fresh token in shell env until we add a long-lived service principal flow. |
+| `NAVIA_MCP_TOKEN` | AAD bearer with `API.Access` role for the existing `requireRole` gate. Copilot Studio supplies this via the connector's OAuth connection; Claude clients need a fresh token in shell env until we add a long-lived service principal flow. (Same env var name dans-admin already uses in `lib/mcp/client.ts`.) |
 
 ## Migrating off ngrok (follow-up PR)
 

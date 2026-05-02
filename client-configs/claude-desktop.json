@@ -7,7 +7,7 @@
       "headers": {
         "CF-Access-Client-Id": "${NAVIA_CF_ACCESS_CLIENT_ID}",
         "CF-Access-Client-Secret": "${NAVIA_CF_ACCESS_CLIENT_SECRET}",
-        "Authorization": "Bearer ${NAVIA_MCP_BEARER}"
+        "Authorization": "Bearer ${NAVIA_MCP_TOKEN}"
       }
     }
   }
