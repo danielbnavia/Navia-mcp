@@ -1,0 +1,43 @@
+# Run navia-mcp + Cloudflare Tunnel together.
+#
+# Required env (in .env or shell):
+#   CLOUDFLARE_TUNNEL_TOKEN  - tunnel token from Cloudflare dashboard
+#                              (Zero Trust -> Networks -> Tunnels -> Configure -> Install tab)
+#   PORT=88                  - local MCP port (must match cloudflared/config.yml)
+#
+# Usage:
+#   docker compose -f docker-compose.cloudflare.yml up -d
+#   docker compose -f docker-compose.cloudflare.yml logs -f cloudflared
+#
+# Replaces the previous ngrok flow (npm run tunnel).
+
+services:
+  navia-mcp:
+    build: .
+    image: navia-mcp:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=88
+      - NODE_ENV=production
+      - MCP_BASE_URL=https://navia-mcp.naviafreight.com
+    expose:
+      - "88"
+    networks:
+      - navia-mcp-net
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - navia-mcp
+    networks:
+      - navia-mcp-net
+
+networks:
+  navia-mcp-net:
+    driver: bridge

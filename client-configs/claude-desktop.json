@@ -1,0 +1,14 @@
+{
+  "_comment": "Drop into claude_desktop_config.json under mcpServers. macOS: ~/Library/Application Support/Claude/claude_desktop_config.json. Windows: %APPDATA%/Claude/claude_desktop_config.json.",
+  "mcpServers": {
+    "navia-mcp": {
+      "type": "http",
+      "url": "https://navia-mcp.naviafreight.com/mcp",
+      "headers": {
+        "CF-Access-Client-Id": "${NAVIA_CF_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "${NAVIA_CF_ACCESS_CLIENT_SECRET}",
+        "Authorization": "Bearer ${NAVIA_MCP_BEARER}"
+      }
+    }
+  }
+}
