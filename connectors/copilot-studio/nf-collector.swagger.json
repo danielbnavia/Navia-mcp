@@ -1,0 +1,114 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "NF Collector",
+    "description": "Collector API for Copilot Studio. Returns compact JSON batches the agent can action without asking the user. Keep outputs small (default 5 items).\n\nNOTE: As of this PR the production host is not deployed -- the original swagger had `REPLACE_ME_WITH_YOUR_HOST`. Decide whether to deploy or remove this connector.",
+    "version": "1.0.0"
+  },
+  "host": "nf-collector.naviafreight.com",
+  "basePath": "/",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "x-api-key"
+    }
+  },
+  "security": [{ "api_key": [] }],
+  "paths": {
+    "/collector/triage": {
+      "post": {
+        "operationId": "getTriageBatch",
+        "summary": "Get triage batch (compact, max 5)",
+        "description": "Returns a compact batch of triage candidates. Never return full email bodies, threads, or attachments. Default batchSize=5.",
+        "parameters": [{ "in": "body", "name": "body", "required": false, "schema": { "$ref": "#/definitions/TriageRequest" } }],
+        "responses": {
+          "200": { "description": "Triage batch", "schema": { "$ref": "#/definitions/TriageResponse" } },
+          "400": { "description": "Bad request", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "401": { "description": "Unauthorized", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      }
+    },
+    "/collector/open-items": {
+      "post": {
+        "operationId": "getOpenItems",
+        "summary": "Get open items (compact, max 20 ids)",
+        "description": "Returns compact open items list (e.g., from SharePoint EmailTriageIndex, Planner, Asana). Designed for agent follow-up actions.",
+        "parameters": [{ "in": "body", "name": "body", "required": false, "schema": { "$ref": "#/definitions/OpenItemsRequest" } }],
+        "responses": {
+          "200": { "description": "Open items", "schema": { "$ref": "#/definitions/OpenItemsResponse" } },
+          "401": { "description": "Unauthorized", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TriageRequest": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["triage"], "default": "triage" },
+        "batchSize": { "type": "integer", "minimum": 1, "maximum": 5, "default": 5 },
+        "folders": { "type": "array", "items": { "type": "string" }, "default": ["Inbox", "Action", "Raft", "Wove", "Integrations"] },
+        "includeDuplicates": { "type": "boolean", "default": false }
+      }
+    },
+    "TriageResponse": {
+      "type": "object",
+      "required": ["runId", "items", "excludedDuplicates"],
+      "properties": {
+        "runId": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "excludedDuplicates": { "type": "integer" },
+        "items": { "type": "array", "maxItems": 5, "items": { "$ref": "#/definitions/TriageItem" } }
+      }
+    },
+    "TriageItem": {
+      "type": "object",
+      "required": ["messageId", "sender", "subject", "receivedUtc", "suggestedBucket", "tags", "dedup"],
+      "properties": {
+        "messageId": { "type": "string" },
+        "sender": { "type": "string" },
+        "subject": { "type": "string" },
+        "receivedUtc": { "type": "string" },
+        "suggestedBucket": { "type": "string", "enum": ["red", "orange", "green"] },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "dedup": { "$ref": "#/definitions/DedupResult" }
+      }
+    },
+    "DedupResult": {
+      "type": "object",
+      "required": ["isDuplicate"],
+      "properties": {
+        "isDuplicate": { "type": "boolean" },
+        "matchedKey": { "type": "string" }
+      }
+    },
+    "OpenItemsRequest": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string", "enum": ["sharepoint", "planner", "asana", "mixed"], "default": "sharepoint" },
+        "maxItems": { "type": "integer", "minimum": 1, "maximum": 20, "default": 10 },
+        "status": { "type": "string", "enum": ["open", "processed", "all"], "default": "open" }
+      }
+    },
+    "OpenItemsResponse": {
+      "type": "object",
+      "required": ["runId", "items"],
+      "properties": {
+        "runId": { "type": "string" },
+        "items": { "type": "array", "maxItems": 20, "items": { "type": "object", "properties": { "ref": { "type": "string" }, "title": { "type": "string" }, "status": { "type": "string" }, "priority": { "type": "string", "enum": ["P1", "P2", "P3", "unknown"] } } } }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "required": ["error"],
+      "properties": {
+        "error": { "type": "string" },
+        "detail": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Outlook Triage A2A Assistant",
+    "description": "Researches customer service tickets from Outlook emails and drafts professional replies. Handles freight forwarding, 3PL logistics, CargoWise, Shopify, and shipping integration queries for Navia Freight. Spoken via the agent-to-agent (A2A) protocol.",
+    "version": "1.0"
+  },
+  "host": "outlook-triage.naviafreight.com",
+  "basePath": "/",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "name": "x-api-key",
+      "in": "header"
+    }
+  },
+  "security": [{ "api_key": [] }],
+  "paths": {
+    "/a2a/rest": {
+      "post": {
+        "operationId": "InvokeA2A",
+        "summary": "Outlook Email Triage Assistant (A2A)",
+        "description": "Researches customer service tickets from Outlook emails and drafts professional replies.",
+        "x-ms-agentic-protocol": "a2a-1.0",
+        "tags": ["A2A"],
+        "responses": {
+          "default": { "description": "A2A response", "schema": {} }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "_comment": "Combined .mcp.json for Claude Code sessions that need every connector. Drop into project .mcp.json or merge with an existing one. Direct MCP servers are wired natively; REST/A2A connectors are reached through tool wrappers on navia-mcp (see connectors/README.md).",
+  "mcpServers": {
+    "navia-mcp": {
+      "type": "http",
+      "url": "https://navia-mcp.naviafreight.com/mcp",
+      "headers": {
+        "CF-Access-Client-Id": "${NAVIA_CF_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "${NAVIA_CF_ACCESS_CLIENT_SECRET}",
+        "Authorization": "Bearer ${NAVIA_MCP_TOKEN}"
+      }
+    },
+    "asana-nf": {
+      "type": "http",
+      "url": "https://mcp.asana.com/v2/mcp",
+      "headers": {
+        "Authorization": "Bearer ${ASANA_OAUTH_TOKEN}"
+      }
+    },
+    "microsoft-learn": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp"
+    }
+  }
+}

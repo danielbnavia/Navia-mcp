@@ -1,0 +1,67 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Navia MCP",
+    "description": "Streamable HTTP Model Context Protocol endpoint for Navia Freight email triage, planner, outlook, dataverse, cargowise, memory, and system tools. Cloudflare-fronted; auth = Cloudflare Access SSO + AAD bearer with API.Access role.",
+    "version": "3.2.0",
+    "contact": {
+      "name": "Navia Freight IT",
+      "email": "it@naviafreight.com"
+    }
+  },
+  "host": "navia-mcp.naviafreight.com",
+  "basePath": "/",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/mcp": {
+      "post": {
+        "operationId": "InvokeMcp",
+        "summary": "Invoke MCP method (Streamable HTTP transport)",
+        "description": "JSON-RPC 2.0 over HTTP. Methods: initialize, tools/list, tools/call, resources/list, resources/read.",
+        "x-ms-agentic-protocol": "mcp-streamable-1.0",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": { "type": "object" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MCP JSON-RPC response",
+            "schema": { "type": "object" }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "HealthCheck",
+        "summary": "Health check",
+        "x-ms-visibility": "internal",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Healthy",
+            "schema": { "type": "object" }
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "aad": {
+      "type": "oauth2",
+      "flow": "accessCode",
+      "authorizationUrl": "https://login.microsoftonline.com/2131d362-e12d-44c1-843b-a1413d6b96a3/oauth2/v2.0/authorize",
+      "tokenUrl": "https://login.microsoftonline.com/2131d362-e12d-44c1-843b-a1413d6b96a3/oauth2/v2.0/token",
+      "scopes": {
+        "api://navia-mcp/.default": "API.Access"
+      }
+    }
+  },
+  "security": [{ "aad": [] }]
+}
