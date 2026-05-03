@@ -1,0 +1,48 @@
+# OpenAPI 3.0 manifest for the Copilot Studio custom connector that fronts the
+# Navia MCP server. Copilot Studio calls /mcp via Streamable HTTP transport.
+#
+# Import flow:
+#   Copilot Studio -> Tools -> Add a tool -> Custom connector -> Import an
+#   OpenAPI file -> upload this YAML -> set Authentication = "OAuth 2.0 (AAD)"
+#   pointing at the same App Registration that issues API.Access role tokens.
+#
+# After import the connector's connection picks up the AAD bearer for the
+# requireRole("API.Access") gate. Cloudflare Access SSO covers the outer gate.
+openapi: 3.0.1
+info:
+  title: Navia MCP
+  description: Streamable HTTP Model Context Protocol endpoint for Navia Freight.
+  version: 1.0.0
+servers:
+  - url: https://navia-mcp.naviafreight.com
+paths:
+  /mcp:
+    post:
+      summary: Invoke MCP method (Streamable HTTP transport)
+      operationId: InvokeMcp
+      x-ms-agentic-protocol: mcp-streamable-1.0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: MCP JSON-RPC response
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  securitySchemes:
+    aad:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.microsoftonline.com/2131d362-e12d-44c1-843b-a1413d6b96a3/oauth2/v2.0/authorize
+          tokenUrl: https://login.microsoftonline.com/2131d362-e12d-44c1-843b-a1413d6b96a3/oauth2/v2.0/token
+          scopes:
+            api://navia-mcp/.default: API.Access
+security:
+  - aad: []

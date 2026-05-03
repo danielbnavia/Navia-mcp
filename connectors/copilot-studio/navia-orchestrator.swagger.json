@@ -1,0 +1,153 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Navia Orchestrator",
+    "description": "Helpdesk and ticket management API for email triage integration.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Navia Freight",
+      "email": "danielb@naviafreight.com"
+    }
+  },
+  "host": "navia-orchestrator.naviafreight.com",
+  "basePath": "/api",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "x-api-key"
+    }
+  },
+  "security": [{ "api_key": [] }],
+  "paths": {
+    "/tickets": {
+      "post": {
+        "operationId": "CreateTicket",
+        "summary": "Create Ticket",
+        "description": "Creates a ticket in the Navia orchestrator system.",
+        "parameters": [
+          { "name": "body", "in": "body", "required": true, "schema": { "$ref": "#/definitions/CreateTicketRequest" } }
+        ],
+        "responses": { "200": { "description": "Ticket created", "schema": { "$ref": "#/definitions/TicketResponse" } } }
+      },
+      "get": {
+        "operationId": "ListTickets",
+        "summary": "List Tickets",
+        "parameters": [
+          { "name": "status", "in": "query", "type": "string", "x-ms-summary": "Status" },
+          { "name": "project", "in": "query", "type": "string", "x-ms-summary": "Project" },
+          { "name": "priority", "in": "query", "type": "string", "x-ms-summary": "Priority" },
+          { "name": "assignee", "in": "query", "type": "string", "x-ms-summary": "Assignee" }
+        ],
+        "responses": { "200": { "description": "List of tickets", "schema": { "type": "array", "items": { "$ref": "#/definitions/Ticket" } } } }
+      }
+    },
+    "/tickets/{id}": {
+      "get": {
+        "operationId": "GetTicket",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "string", "x-ms-summary": "Ticket ID" }],
+        "responses": { "200": { "description": "Ticket details", "schema": { "$ref": "#/definitions/Ticket" } } }
+      },
+      "patch": {
+        "operationId": "UpdateTicket",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "type": "string", "x-ms-summary": "Ticket ID" },
+          { "name": "body", "in": "body", "schema": { "$ref": "#/definitions/UpdateTicketRequest" } }
+        ],
+        "responses": { "200": { "description": "Ticket updated", "schema": { "type": "object", "properties": { "success": { "type": "boolean" } } } } }
+      }
+    },
+    "/projects": {
+      "get": {
+        "operationId": "ListProjects",
+        "responses": { "200": { "description": "List of projects", "schema": { "type": "array", "items": { "$ref": "#/definitions/Project" } } } }
+      }
+    },
+    "/webhooks/email": {
+      "post": {
+        "operationId": "IngestEmailWebhook",
+        "summary": "Ingest Email Webhook",
+        "security": [],
+        "parameters": [{ "name": "body", "in": "body", "schema": { "$ref": "#/definitions/EmailWebhookRequest" } }],
+        "responses": { "200": { "description": "Email ingested", "schema": { "$ref": "#/definitions/TicketResponse" } } }
+      }
+    }
+  },
+  "definitions": {
+    "CreateTicketRequest": {
+      "type": "object",
+      "required": ["subject", "sender", "description"],
+      "properties": {
+        "subject": { "type": "string", "x-ms-summary": "Subject" },
+        "sender": { "type": "string", "x-ms-summary": "Sender" },
+        "description": { "type": "string", "x-ms-summary": "Description" },
+        "category": { "type": "string", "x-ms-summary": "Category" },
+        "priority": { "type": "string", "x-ms-summary": "Priority" },
+        "assignee": { "type": "string", "x-ms-summary": "Assignee" },
+        "project": { "type": "string", "x-ms-summary": "Project" },
+        "source": { "type": "string", "default": "copilot", "x-ms-summary": "Source" },
+        "tags": { "type": "array", "items": { "type": "string" }, "x-ms-summary": "Tags" },
+        "dueDate": { "type": "string", "format": "date-time", "x-ms-summary": "Due Date" }
+      }
+    },
+    "UpdateTicketRequest": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "x-ms-summary": "Status" },
+        "category": { "type": "string", "x-ms-summary": "Category" },
+        "priority": { "type": "string", "x-ms-summary": "Priority" },
+        "assignee": { "type": "string", "x-ms-summary": "Assignee" },
+        "project": { "type": "string", "x-ms-summary": "Project" },
+        "tags": { "type": "array", "items": { "type": "string" }, "x-ms-summary": "Tags" },
+        "dueDate": { "type": "string", "format": "date-time", "x-ms-summary": "Due Date" }
+      }
+    },
+    "EmailWebhookRequest": {
+      "type": "object",
+      "properties": {
+        "from": { "type": "string", "x-ms-summary": "From" },
+        "subject": { "type": "string", "x-ms-summary": "Subject" },
+        "text": { "type": "string", "x-ms-summary": "Text" }
+      }
+    },
+    "TicketResponse": {
+      "type": "object",
+      "properties": {
+        "success": { "type": "boolean", "x-ms-summary": "Success" },
+        "ticketId": { "type": "string", "x-ms-summary": "Ticket ID" }
+      }
+    },
+    "Ticket": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "subject": { "type": "string" },
+        "sender": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string" },
+        "priority": { "type": "string" },
+        "assignee": { "type": "string" },
+        "project": { "type": "string" },
+        "source": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "dueDate": { "type": "string" }
+      }
+    },
+    "Project": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "color": { "type": "string" },
+        "members": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

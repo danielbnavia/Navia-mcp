@@ -1,0 +1,68 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Zapier MCP Bridge",
+    "description": "Bridge to 170+ Zapier MCP tools (Asana, Outlook, Google Sheets, Slack, Airtable, etc.). Cloudflare-fronted shim that forwards to a private Zapier MCP endpoint.",
+    "version": "1.0"
+  },
+  "host": "zapier-bridge.naviafreight.com",
+  "basePath": "/",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "x-api-key"
+    }
+  },
+  "security": [{ "api_key": [] }],
+  "paths": {
+    "/api/call": {
+      "post": {
+        "operationId": "CallTool",
+        "summary": "Call a Zapier tool",
+        "description": "Execute any Zapier MCP tool by name with arguments.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["tool"],
+              "properties": {
+                "tool": { "type": "string", "x-ms-summary": "Tool name" },
+                "arguments": { "type": "object", "x-ms-summary": "Arguments" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Tool result", "schema": { "type": "object", "properties": { "result": { "type": "object" } } } }
+        }
+      }
+    },
+    "/api/tools": {
+      "post": {
+        "operationId": "ListTools",
+        "summary": "List available tools",
+        "responses": {
+          "200": { "description": "Tools list", "schema": { "type": "object", "properties": { "tools": { "type": "array", "items": { "type": "object", "properties": { "name": { "type": "string" }, "description": { "type": "string" } } } } } } }
+        }
+      }
+    },
+    "/api/status": {
+      "get": {
+        "operationId": "GetStatus",
+        "summary": "Health check",
+        "x-ms-visibility": "internal",
+        "security": [],
+        "responses": {
+          "200": { "description": "Bridge status", "schema": { "type": "object", "properties": { "registered": { "type": "boolean" }, "secretConfigured": { "type": "boolean" } } } }
+        }
+      }
+    }
+  }
+}

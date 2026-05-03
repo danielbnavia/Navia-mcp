@@ -1,0 +1,84 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Navia Flare Triage",
+    "description": "Calls the Navia Email Triage Managed Agent (Claude) running on Cloudflare Workers. Returns category + action_state + customer match + suggested action.",
+    "version": "1.0.0",
+    "contact": { "name": "Daniel Breglia" }
+  },
+  "host": "navia-agentic-api.naviafreight.com",
+  "basePath": "/",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "bearer": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Authorization"
+    }
+  },
+  "security": [{ "bearer": [] }],
+  "paths": {
+    "/api/triage": {
+      "post": {
+        "operationId": "TriageEmail",
+        "summary": "Triage an Outlook email",
+        "x-ms-visibility": "important",
+        "parameters": [{ "in": "body", "name": "body", "required": true, "schema": { "$ref": "#/definitions/TriageRequest" } }],
+        "responses": {
+          "200": { "description": "Triage result", "schema": { "$ref": "#/definitions/TriageResponse" } },
+          "401": { "description": "Unauthorized", "schema": { "$ref": "#/definitions/ErrorResponse" } },
+          "504": { "description": "Agent timed out", "schema": { "$ref": "#/definitions/ErrorResponse" } }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "Health",
+        "summary": "Health check (public)",
+        "security": [],
+        "x-ms-visibility": "internal",
+        "responses": { "200": { "description": "Healthy" } }
+      }
+    }
+  },
+  "definitions": {
+    "TriageRequest": {
+      "type": "object",
+      "required": ["email_subject", "email_sender"],
+      "properties": {
+        "email_subject": { "type": "string", "x-ms-summary": "Subject" },
+        "email_sender": { "type": "string", "x-ms-summary": "Sender" },
+        "email_body_snippet": { "type": "string", "x-ms-summary": "Body snippet" },
+        "thread_state": { "type": "string", "x-ms-summary": "Thread state", "enum": ["new", "awaiting_reply", "replied", "escalated", "closed", "ignored"] }
+      }
+    },
+    "TriageResponse": {
+      "type": "object",
+      "properties": {
+        "ok": { "type": "boolean" },
+        "data": {
+          "type": "object",
+          "properties": {
+            "category": { "type": "string", "x-ms-summary": "Category" },
+            "priority": { "type": "string", "x-ms-summary": "Priority" },
+            "action_state": { "type": "string", "x-ms-summary": "Action state" },
+            "suggested_action": { "type": "string", "x-ms-summary": "Suggested action" },
+            "customer_match": { "type": "string", "x-ms-summary": "Customer match" },
+            "session_id": { "type": "string", "x-ms-summary": "Session id" }
+          }
+        },
+        "timestamp": { "type": "string" }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "ok": { "type": "boolean" },
+        "error": { "type": "string" },
+        "timestamp": { "type": "string" }
+      }
+    }
+  }
+}
